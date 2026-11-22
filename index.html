@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Password-Protected Research Preview</title>
+  <style id="gate-styles">
+    :root {
+      --g-bg: #f4f7fb;
+      --g-card: #ffffff;
+      --g-ink: #0f172a;
+      --g-muted: #475569;
+      --g-subtle: #64748b;
+      --g-accent: #0072B2;
+      --g-accent-dark: #064e7c;
+      --g-border: rgba(15, 23, 42, 0.12);
+      --g-danger: #be123c;
+      --g-danger-bg: #ffe4e6;
+      --g-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --g-serif: Georgia, "Times New Roman", serif;
+      --g-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse 80% 55% at 50% -10%, rgba(0, 114, 178, 0.10), transparent),
+                  var(--g-bg);
+      color: var(--g-ink);
+      font-family: var(--g-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    .gate-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .gate-card {
+      width: 100%;
+      max-width: 470px;
+      background: var(--g-card);
+      border: 1px solid var(--g-border);
+      border-radius: 18px;
+      padding: 2.1rem 2.1rem 1.85rem;
+      box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.10), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+    }
+    .gate-card.shake {
+      animation: gateShake 0.34s cubic-bezier(.36,.07,.19,.97) both;
+    }
+    @keyframes gateShake {
+      10%, 90% { transform: translateX(-2px); }
+      20%, 80% { transform: translateX(4px); }
+      30%, 50%, 70% { transform: translateX(-6px); }
+      40%, 60% { transform: translateX(6px); }
+    }
+    .gate-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      padding: 0.26rem 0.68rem;
+      border-radius: 999px;
+      background: #e6f2fa;
+      color: var(--g-accent-dark);
+      font-family: var(--g-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .gate-title {
+      font-family: var(--g-serif);
+      font-size: 1.52rem;
+      line-height: 1.25;
+      margin: 0 0 0.55rem;
+      color: var(--g-ink);
+    }
+    .gate-desc {
+      font-size: 0.91rem;
+      line-height: 1.58;
+      color: var(--g-muted);
+      margin: 0 0 1.35rem;
+    }
+    .gate-label {
+      display: block;
+      font-family: var(--g-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--g-subtle);
+      margin-bottom: 0.42rem;
+    }
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.95rem;
+    }
+    .gate-input {
+      width: 100%;
+      padding: 0.75rem 4.3rem 0.75rem 0.9rem;
+      border-radius: 10px;
+      border: 1.5px solid rgba(15, 23, 42, 0.18);
+      font-family: var(--g-mono);
+      font-size: 0.98rem;
+      letter-spacing: 0.06em;
+      color: var(--g-ink);
+      background: #f8fafc;
+      transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    }
+    .gate-input:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: var(--g-accent);
+      box-shadow: 0 0 0 3px rgba(0, 114, 178, 0.14);
+    }
+    .toggle-pw-btn {
+      position: absolute;
+      right: 0.5rem;
+      padding: 0.32rem 0.58rem;
+      border-radius: 6px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      background: #ffffff;
+      color: var(--g-muted);
+      font-family: var(--g-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .toggle-pw-btn:hover {
+      color: var(--g-ink);
+      border-color: rgba(15, 23, 42, 0.28);
+    }
+    .unlock-btn {
+      width: 100%;
+      padding: 0.78rem 1rem;
+      border-radius: 10px;
+      border: none;
+      background: var(--g-accent);
+      color: #ffffff;
+      font-family: var(--g-sans);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+      box-shadow: 0 4px 12px rgba(0, 114, 178, 0.22);
+    }
+    .unlock-btn:hover:not(:disabled) {
+      background: var(--g-accent-dark);
+    }
+    .unlock-btn:disabled {
+      opacity: 0.68;
+      cursor: progress;
+    }
+    .gate-msg {
+      margin-top: 0.85rem;
+      padding: 0.62rem 0.78rem;
+      border-radius: 8px;
+      font-size: 0.81rem;
+      line-height: 1.45;
+      display: none;
+    }
+    .gate-msg.is-error {
+      display: block;
+      background: var(--g-danger-bg);
+      color: var(--g-danger);
+      border: 1px solid rgba(190, 18, 60, 0.25);
+      font-weight: 500;
+    }
+    .gate-msg.is-info {
+      display: block;
+      background: #f1f5f9;
+      color: var(--g-muted);
+      border: 1px solid var(--g-border);
+    }
+    .gate-foot {
+      margin-top: 1.25rem;
+      padding-top: 0.95rem;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--g-mono);
+      font-size: 0.69rem;
+      color: var(--g-subtle);
+    }
+  </style>
+</head>
+<body>
+  <div class="gate-wrap" id="gate-wrap">
+    <div class="gate-card" id="gate-card">
+      <div class="gate-badge">🔒 AES-256-GCM · PBKDF2-SHA256</div>
+      <h1 class="gate-title">Password-Protected Research Preview</h1>
+      <p class="gate-desc">
+        Enter Passcode to Unlock Interactive Manuscript Companion. All manuscript text, benchmark tables, interactive playgrounds, and high-resolution figures are encrypted at rest and decrypted locally in your browser via Web Crypto.
+      </p>
+
+      <form id="unlock-form" autocomplete="off">
+        <label class="gate-label" for="passcode-input">Preview Passcode</label>
+        <div class="input-wrap">
+          <input
+            id="passcode-input"
+            class="gate-input"
+            type="password"
+            inputmode="text"
+            placeholder="Enter passcode…"
+            autocomplete="off"
+            spellcheck="false"
+            required
+            autofocus
+          />
+          <button type="button" class="toggle-pw-btn" id="toggle-pw-btn" aria-label="Show passcode">Show</button>
+        </div>
+        <button type="submit" class="unlock-btn" id="unlock-btn">Unlock Interactive Companion &rarr;</button>
+      </form>
+
+      <div id="gate-msg" class="gate-msg" role="alert" aria-live="polite"></div>
+
+      <div class="gate-foot">
+        <span>Client-Side WebCrypto</span>
+        <span>200,000 PBKDF2 Rounds</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    "use strict";
+
+    const SESSION_KEY = "rt_motion_tsfm_aes_v1";
+    const enc = new TextEncoder();
+    const dec = new TextDecoder();
+
+    const form = document.getElementById("unlock-form");
+    const input = document.getElementById("passcode-input");
+    const toggleBtn = document.getElementById("toggle-pw-btn");
+    const unlockBtn = document.getElementById("unlock-btn");
+    const msgBox = document.getElementById("gate-msg");
+    const card = document.getElementById("gate-card");
+
+    // Prefetch encrypted primary bundle immediately so Enter unlock is near-instant
+    let payloadEnvelopePromise = fetch("./payload.enc.json", { cache: "no-cache" }).then((r) => {
+      if (!r.ok) throw new Error("Failed to load encrypted bundle (" + r.status + ")");
+      return r.json();
+    });
+
+    function b64ToBytes(b64) {
+      const bin = atob(b64);
+      const arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      return arr;
+    }
+
+    function bytesToB64(bytes) {
+      let bin = "";
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      return btoa(bin);
+    }
+
+    function showStatus(text, kind) {
+      msgBox.textContent = text;
+      msgBox.className = "gate-msg " + (kind === "error" ? "is-error" : "is-info");
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      const hidden = input.type === "password";
+      input.type = hidden ? "text" : "password";
+      toggleBtn.textContent = hidden ? "Hide" : "Show";
+      toggleBtn.setAttribute("aria-label", hidden ? "Hide passcode" : "Show passcode");
+      input.focus();
+    });
+
+    async function deriveRawKeyBytes(passcode, saltBytes, iterations) {
+      const keyMaterial = await crypto.subtle.importKey(
+        "raw",
+        enc.encode(passcode),
+        "PBKDF2",
+        false,
+        ["deriveBits"]
+      );
+      const bits = await crypto.subtle.deriveBits(
+        {
+          name: "PBKDF2",
+          salt: saltBytes,
+          iterations: iterations,
+          hash: "SHA-256",
+        },
+        keyMaterial,
+        256
+      );
+      return new Uint8Array(bits);
+    }
+
+    async function importAesKey(rawKeyBytes) {
+      return crypto.subtle.importKey("raw", rawKeyBytes, { name: "AES-GCM" }, false, ["decrypt"]);
+    }
+
+    async function decryptEnvelope(aesKey, envelope) {
+      const iv = b64ToBytes(envelope.iv);
+      const ct = b64ToBytes(envelope.ct);
+      const aad = enc.encode(envelope.aad);
+      const plainBuf = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: iv, additionalData: aad },
+        aesKey,
+        ct
+      );
+      return new Uint8Array(plainBuf);
+    }
+
+    async function mountUnlockedApp(payload, aesKey) {
+      const createdBlobUrls = [];
+
+      // 1. Set page title & replace styles
+      document.title = payload.title;
+      const styleEl = document.createElement("style");
+      styleEl.id = "unlocked-app-styles";
+      styleEl.textContent = payload.stylesCss;
+      document.head.appendChild(styleEl);
+
+      // 2. Inject full application body markup & remove gate stylesheet
+      document.body.innerHTML = payload.bodyHtml;
+      const gateStyle = document.getElementById("gate-styles");
+      if (gateStyle) gateStyle.remove();
+
+      // 3. Add a clean "Lock" button to the top navigation bar
+      const navActions = document.querySelector(".nav-actions");
+      if (navActions) {
+        const lockBtn = document.createElement("button");
+        lockBtn.type = "button";
+        lockBtn.id = "lock-site-btn";
+        lockBtn.className = "btn btn-outline btn-sm";
+        lockBtn.title = "Clear session key and re-lock preview";
+        lockBtn.textContent = "🔒 Lock";
+        lockBtn.addEventListener("click", () => {
+          try { sessionStorage.removeItem(SESSION_KEY); } catch (_) {}
+          createdBlobUrls.forEach((u) => URL.revokeObjectURL(u));
+          window.location.reload();
+        });
+        navActions.appendChild(lockBtn);
+      }
+
+      // 4. Wire decrypted Blob URLs onto JSON & source-archive download links
+      if (payload.downloads) {
+        Object.keys(payload.downloads).forEach((hrefKey) => {
+          const item = payload.downloads[hrefKey];
+          const bytes = item.encoding === "base64" ? b64ToBytes(item.content) : enc.encode(item.content);
+          const blob = new Blob([bytes], { type: item.mime });
+          const blobUrl = URL.createObjectURL(blob);
+          createdBlobUrls.push(blobUrl);
+          document.querySelectorAll('a[href="' + hrefKey + '"]').forEach((a) => {
+            a.href = blobUrl;
+            a.setAttribute("download", item.filename);
+            a.removeAttribute("target");
+          });
+        });
+      }
+
+      // 5. Execute data.js and app.js in global scope so all interactive canvases initialize immediately
+      const sData = document.createElement("script");
+      sData.textContent = payload.dataJs;
+      document.body.appendChild(sData);
+
+      const sApp = document.createElement("script");
+      sApp.textContent = payload.appJs;
+      document.body.appendChild(sApp);
+
+      // 6. Stream & decrypt high-resolution Figures 1-5 in parallel and populate Blob URLs
+      try {
+        const figResp = await fetch("./figures.enc.json", { cache: "no-cache" });
+        if (figResp.ok) {
+          const figEnv = await figResp.json();
+          const figBytes = await decryptEnvelope(aesKey, figEnv);
+          const figMap = JSON.parse(dec.decode(figBytes));
+          document.querySelectorAll("img[data-enc-fig]").forEach((img) => {
+            const key = img.getAttribute("data-enc-fig");
+            if (figMap[key]) {
+              const pngBytes = b64ToBytes(figMap[key]);
+              const blobUrl = URL.createObjectURL(new Blob([pngBytes], { type: "image/png" }));
+              createdBlobUrls.push(blobUrl);
+              img.src = blobUrl;
+            }
+          });
+        }
+      } catch (figErr) {
+        console.error("Failed to decrypt figure bundle:", figErr);
+      }
+    }
+
+    // Attempt silent auto-unlock if active tab has cached key in sessionStorage
+    (async function trySessionAutoUnlock() {
+      let cachedStr = null;
+      try { cachedStr = sessionStorage.getItem(SESSION_KEY); } catch (_) {}
+      if (!cachedStr) return;
+
+      try {
+        showStatus("Restoring unlocked session…", "info");
+        const cached = JSON.parse(cachedStr);
+        const env = await payloadEnvelopePromise;
+        if (cached.salt !== env.salt) {
+          sessionStorage.removeItem(SESSION_KEY);
+          msgBox.className = "gate-msg";
+          return;
+        }
+        const aesKey = await importAesKey(b64ToBytes(cached.k));
+        const plainBytes = await decryptEnvelope(aesKey, env);
+        const payload = JSON.parse(dec.decode(plainBytes));
+        await mountUnlockedApp(payload, aesKey);
+      } catch (_) {
+        try { sessionStorage.removeItem(SESSION_KEY); } catch (_e) {}
+        msgBox.className = "gate-msg";
+      }
+    })();
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const pw = input.value;
+      if (!pw) return;
+
+      unlockBtn.disabled = true;
+      card.classList.remove("shake");
+      showStatus("Deriving 256-bit key (PBKDF2-SHA256) & decrypting…", "info");
+
+      try {
+        const env = await payloadEnvelopePromise;
+        const saltBytes = b64ToBytes(env.salt);
+        const rawKey = await deriveRawKeyBytes(pw, saltBytes, env.iter);
+        const aesKey = await importAesKey(rawKey);
+        const plainBytes = await decryptEnvelope(aesKey, env);
+        const payload = JSON.parse(dec.decode(plainBytes));
+
+        try {
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify({ salt: env.salt, k: bytesToB64(rawKey) }));
+        } catch (_) {}
+
+        await mountUnlockedApp(payload, aesKey);
+      } catch (err) {
+        unlockBtn.disabled = false;
+        showStatus("Incorrect passcode — AES-256-GCM authentication tag verification failed.", "error");
+        void card.offsetWidth;
+        card.classList.add("shake");
+        input.focus();
+        input.select();
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
